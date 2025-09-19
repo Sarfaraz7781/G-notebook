@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G-Docs Notes</title>
+  <link rel="icon" type="image/x-icon" href="/Images/Favicons/notes.ico">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    /* Main app */
+    #app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 40px;
+      width: 90%;
+      max-width: 700px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease;
+    }
+
+    #app:hover {
+      transform: translateY(-5px);
+    }
+
+    #app h2 {
+      margin-bottom: 20px;
+      font-weight: 600;
+      color: #333;
+      text-align: center;
+    }
+
+    #app h3 {
+      display: none;
+      margin-bottom: 15px;
+      color: #555;
+    }
+
+    textarea {
+      width: 100%;
+      height: 350px;
+      margin-bottom: 20px;
+      padding: 15px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      outline: none;
+      resize: none;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    textarea:focus {
+      border-color: #4285f4;
+      box-shadow: 0 4px 12px rgba(66, 133, 244, 0.25);
+    }
+
+    button {
+      position: relative;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.2s ease;
+      overflow: hidden;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: scale(0.95);
+      background: linear-gradient(90deg, #357ae8, #2c7f4f);
+    }
+
+    .spinner {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      margin: -9px 0 0 -9px;
+      border: 2px solid white;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading .spinner {
+      display: block;
+    }
+
+    .loading span {
+      visibility: hidden;
+    }
+
+    /* Popup modal */
+    .popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .popup.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .popup-content {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      animation: pop 0.3s ease-out;
+    }
+
+    .popup-content h3 {
+      color: #34a853;
+      margin-bottom: 10px;
+    }
+
+    .popup-content p {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .popup-content button {
+      padding: 10px 24px;
+      font-size: 14px;
+      background: #4285f4;
+      border-radius: 8px;
+    }
+
+    .footer {
+      padding: 20px;
+      font-size: 0.9rem;
+    }
+
+    @keyframes pop {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Tablet */
+    @media (max-width: 1024px) and (min-width: 481px) {
+      #app {
+        padding: 25px 30px;
+        max-width: 600px;
+      }
+
+      textarea {
+        height: 300px;
+        font-size: 15px;
+      }
+
+      button {
+        padding: 12px 24px;
+        font-size: 15px;
+      }
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+      #app {
+        padding: 20px;
+      }
+
+      textarea {
+        height: 280px;
+        font-size: 14px;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+
+      #app h2 {
+        display: none;
+      }
+
+      #app h3 {
+        display: unset;
+        font-size: 1.2rem;
+        color: #333;
+      }
+    }
+  </style>
+
+
+</head>
+
+<body>
+  <!-- Main App -->
+  <div id="app">
+    <h2>Save your note in Google Docs.</h2>
+    <h3>Notes to Docs</h3>
+    <textarea id="note" placeholder="Type your notes here..."></textarea>
+    <button id="saveBtn" onclick="saveNote()">
+      <span>Save</span>
+      <div class="spinner"></div>
+    </button>
+  </div>
+
+  <!-- Popup -->
+  <div id="popup" class="popup">
+    <div class="popup-content">
+      <h3>✔ Saved Successfully</h3>
+      <p>Your note has been saved to Google Docs.</p>
+    </div>
+  </div>
+
+  <!-- © 2025 Sarfaraz. All rights reserved. -->
+
+  <div class="footer">
+    © 2025 Sarfaraz. All rights reserved.
+  </div>
+
+  <script>
+    async function saveNote() {
+      const note = document.getElementById("note");
+      const text = note.value.trim();
+      const popup = document.getElementById("popup");
+      const saveBtn = document.getElementById("saveBtn");
+
+      if (!text) {
+        alert("Please type something first.");
+        return;
+      }
+
+      saveBtn.classList.add("loading");
+
+      try {
+        await fetch("https://script.google.com/macros/s/AKfycbz1Zp1_ocvA7y0BX-fSDnNJVZJZ8CYsdFMCdAX6qtKjhlcDANRugRTD3XO6QVPmW5I/exec", {
+          method: "POST",
+          mode: "no-cors",
+          body: JSON.stringify({ text: text }),
+          headers: { "Content-Type": "application/json" }
+        });
+
+        note.value = "";
+        // Show popup
+        popup.classList.add("active");
+
+        // Auto hide popup after 2 seconds
+        setTimeout(() => {
+          popup.classList.remove("active");
+        }, 2000);
+
+      } catch (err) {
+        alert("Error: " + err.message);
+      } finally {
+        saveBtn.classList.remove("loading");
+      }
+    }
+
+    function closePopup() {
+      document.getElementById("popup").classList.remove("active");
+    }
+
+    // Enter to save and ctrl + enter for new line
+    const noteBox = document.getElementById("note");
+    noteBox.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.ctrlKey) {
+        e.preventDefault(); // block newline
+        saveNote();
+      } else if (e.key === "Enter" && e.ctrlKey) {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "\n" + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 1;
+      }
+    });
+  </script>
+</body>
+
+</html>
