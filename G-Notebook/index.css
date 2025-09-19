@@ -193,6 +193,27 @@ body {
     background-size: cover;
 }
 
+/* Drive Icon */
+.drive-icon {
+    position: relative;
+    width: 70%;
+    height: 70%;
+    background-image: url(./Images/Drive-logo.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+/* Nothing Ivon */
+.nothing-icon {
+    position: relative;
+    width: 70%;
+    height: 70%;
+    background-image: url(./Images/Nothing.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-card {
@@ -326,4 +347,5 @@ body {
 
 .footer-copyright{
     padding: 20px;
+
 }
