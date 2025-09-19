@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Upload File</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .form-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        input {
+            width: 99.50%;
+            padding: 10px 0px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button[type="submit"]:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        }
+
+        button[type="submit"].loading {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: transparent;
+            pointer-events: none;
+        }
+
+        button[type="submit"].loading::after {
+            content: '';
+            border: 3px solid #fff;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #1f2a58 0%, #6a4c89 100%);
+            color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            z-index: 9999;
+            animation: popupSlide 0.4s ease;
+        }
+
+        .popup.show {
+            display: flex;
+        }
+
+        .popup h3 {
+            margin: 0 0 10px;
+        }
+
+        .popup button {
+            margin-top: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .footer {
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+
+        @keyframes popupSlide {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <h2>Upload File</h2>
+        <form id="myForm">
+            <input type="file" id="file" required>
+            <input type="hidden" name="file">
+            <input type="hidden" name="fileType">
+            <input type="hidden" name="fileName">
+            <button type="submit" id="submitBtn">Upload</button>
+        </form>
+    </div>
+
+    <div class="popup" id="popup">
+        <h3>☑️ File Uploaded Successfully!</h3>
+    </div>
+
+    <!-- © 2025 Sarfaraz. All rights reserved. -->
+
+    <div class="footer">
+        © 2025 Sarfaraz. All rights reserved.
+    </div>
+
+    <script>
+        const form = document.getElementById('myForm');
+        const fileInput = document.getElementById('file');
+        const hiddenFile = form.querySelector('input[name="file"]');
+        const hiddenType = form.querySelector('input[name="fileType"]');
+        const hiddenName = form.querySelector('input[name="fileName"]');
+        const popup = document.getElementById('popup');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = async function () {
+                const base64 = reader.result.split(',')[1];
+                hiddenFile.value = base64;
+                hiddenType.value = file.type || "application/octet-stream";
+                hiddenName.value = file.name;
+
+                const formData = new FormData(form);
+                const scriptURL = 'https://script.google.com/macros/s/AKfycbwi76xWv3CSvW2uVir69koicNiF4hxleZ_3FUlzHkdQBvyxI5SfGMYD-vvhHB99q6MMNQ/exec'; // replace with your Apps Script URL
+
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch(scriptURL, { method: 'POST', body: formData });
+                    if (response.ok) {
+                        form.reset();
+                        showPopup();
+                    } else {
+                        alert('Upload failed.');
+                    }
+                } catch (error) {
+                    alert('Error occurred.');
+                    console.error(error);
+                } finally {
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function showPopup() {
+            popup.classList.add('show');
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 2000); // 2000ms = 2 seconds
+        }
+
+    </script>
+</body>
+
+</html>
